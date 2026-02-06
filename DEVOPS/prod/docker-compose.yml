@@ -1,0 +1,56 @@
+services:
+    nginx-proxy:
+        image: jwilder/nginx-proxy
+        container_name: nginx-proxy
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - nginx_certs:/etc/nginx/certs
+            - nginx_vhost:/etc/nginx/vhost.d
+            - nginx_html:/usr/share/nginx/html
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+        networks:
+            - proxy
+
+    letsencrypt:
+        image: nginxproxy/acme-companion
+        container_name: nginx-proxy-acme
+        restart: always
+        environment:
+            DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+            NGINX_PROXY_CONTAINER: nginx-proxy
+        volumes:
+            - nginx_certs:/etc/nginx/certs
+            - nginx_vhost:/etc/nginx/vhost.d
+            - nginx_html:/usr/share/nginx/html
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - acme:/etc/acme.sh
+        networks:
+            - proxy
+
+    app:
+        image: prod_app:latest
+        container_name: app
+        build:
+            context: ../../
+            dockerfile: app/Dockerfile
+        environment:
+            - VIRTUAL_HOST=${DOMAIN}
+            - LETSENCRYPT_HOST=${DOMAIN}
+        expose:
+            - "${PORT}"
+        env_file:
+            - .env
+        networks:
+            - proxy
+
+networks:
+    proxy:
+
+volumes:
+    nginx_certs:
+    nginx_vhost:
+    nginx_html:
+    acme:

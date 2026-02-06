@@ -1,0 +1,20 @@
+# Ignore everything by default
+**
+
+!app/Dockerfile
+!app/Cargo.toml
+!app/Cargo.lock
+!app/src/
+!app/public/
+
+!frontend/
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/vite.config.js
+!frontend/index.html
+!frontend/src/
+!frontend/public/
+
+frontend/node_modules
+frontend/dist
+**/target/

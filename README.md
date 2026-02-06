@@ -64,6 +64,62 @@ docker compose -f DEVOPS/prod/docker-compose.yml --env-file DEVOPS/prod/.env up 
 
 Once DNS propagates, `nginx-proxy` + Let's Encrypt will issue HTTPS certificates automatically.
 
+## Vultr Ubuntu Setup (Docker + Deploy)
+
+These steps assume a fresh Ubuntu server on Vultr.
+
+1. Install Docker (official packages):
+```
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+2. Start Docker and enable it on boot:
+```
+sudo systemctl enable --now docker
+```
+
+3. (Optional) Allow your user to run Docker without sudo:
+```
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+4. Clone this repo on the server:
+```
+git clone git@github.com:Inferi70/KangarooTrucking.git
+cd KangarooTrucking
+```
+
+5. Create prod env:
+```
+cp DEVOPS/prod/.example.env DEVOPS/prod/.env
+```
+Edit `DEVOPS/prod/.env` and set:
+`DOMAIN`, `DEFAULT_EMAIL`, `RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TO`.
+
+6. Run production:
+```
+docker compose -f DEVOPS/prod/docker-compose.yml --env-file DEVOPS/prod/.env up -d --build
+```
+
+7. DNS at Porkbun:
+   - Add an `A` record for `kangarootrucking.com` pointing to your Vultr IP.
+   - Optional: add `CNAME` for `www` → `kangarootrucking.com`.
+
 # Project Structure
 ```
 ├── app/                # Axum server (serves frontend + /api/contact)

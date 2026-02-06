@@ -33,5 +33,5 @@ tmp/
 node_modules
 
 .env*
-index.css
+app/public/css/index.css
 build

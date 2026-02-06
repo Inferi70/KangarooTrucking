@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+/* Make `dark:` respond to the `.dark` class instead of system media */
+@custom-variant dark (&:where(.dark, .dark *));
+

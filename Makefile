@@ -6,7 +6,7 @@ frontend-build:
 	cp -r frontend/dist/* app/public/
 
 app: frontend-build
-	cd app && cargo run
+	set -a; source $(APP_ENV); set +a; cd app && cargo run
 
 docker:
 	docker compose -f ./DEVOPS/dev/docker-compose.yml --env-file ./DEVOPS/dev/.env up -d --build

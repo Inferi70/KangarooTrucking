@@ -2,12 +2,12 @@ import { useState } from "react";
 
 export default function Contact() {
   const [status, setStatus] = useState("idle");
-
   async function onSubmit(e) {
     e.preventDefault();
     setStatus("sending");
 
-    const form = new FormData(e.currentTarget);
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
     const payload = Object.fromEntries(form.entries());
 
     try {
@@ -19,7 +19,7 @@ export default function Contact() {
 
       if (!res.ok) throw new Error("Request failed");
       setStatus("sent");
-      e.currentTarget.reset();
+      formEl?.reset();
     } catch {
       setStatus("error");
     }
@@ -80,13 +80,13 @@ export default function Contact() {
 
             {status === "sent" && (
               <p className="text-sm text-emerald-600">
-                Sent. We will get back to you soon.
+                Message sent successfully. We will get back to you soon.
               </p>
             )}
 
             {status === "error" && (
               <p className="text-sm text-red-600">
-                Message not sent yet (backend not wired).
+                An error has occurred. Please try again.
               </p>
             )}
           </form>

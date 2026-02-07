@@ -1,10 +1,6 @@
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-    routing::post,
-    Json, Router,
-};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use resend_rs::Resend;
+use resend_rs::types::CreateEmailBaseOptions;
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::services::ServeDir;
@@ -18,8 +14,9 @@ struct AppConfig {
     resend_to: Option<String>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 struct AppState {
+    resend: Resend,
     cfg: Arc<AppConfig>,
 }
 
@@ -43,9 +40,14 @@ async fn main() {
         resend_to: std::env::var("RESEND_TO").ok(),
     };
 
-    let state = AppState {
-        cfg: Arc::new(cfg),
+    let Some(api_key) = cfg.resend_api_key.as_ref() else {
+        panic!("RESEND_API_KEY is required");
     };
+
+    let state = Arc::new(AppState {
+        resend: Resend::new(api_key),
+        cfg: Arc::new(cfg),
+    });
 
     let app = Router::new()
         .route("/api/contact", post(send_contact))
@@ -69,7 +71,7 @@ async fn main() {
 }
 
 async fn send_contact(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Json(payload): Json<ContactPayload>,
 ) -> impl IntoResponse {
     let name = payload.name.trim();
@@ -81,9 +83,6 @@ async fn send_contact(
         return (StatusCode::BAD_REQUEST, "Missing required fields").into_response();
     }
 
-    let Some(api_key) = state.cfg.resend_api_key.as_ref() else {
-        return (StatusCode::SERVICE_UNAVAILABLE, "Resend not configured").into_response();
-    };
     let Some(from) = state.cfg.resend_from.as_ref() else {
         return (StatusCode::SERVICE_UNAVAILABLE, "Resend not configured").into_response();
     };
@@ -99,38 +98,13 @@ async fn send_contact(
         .map(|s| format!("Contact: {}", s))
         .unwrap_or_else(|| "Contact: New request".to_string());
 
-    let text = format!(
-        "Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}"
-    );
     let html = build_contact_html(name, email, phone, message);
 
-    let client = reqwest::Client::new();
-    let res = client
-        .post("https://api.resend.com/emails")
-        .bearer_auth(api_key)
-        .json(&serde_json::json!({
-            "from": from,
-            "to": [to],
-            "reply_to": email,
-            "subject": subject,
-            "text": text,
-            "html": html,
-        }))
-        .send()
-        .await;
+    let email =
+        CreateEmailBaseOptions::new(from.clone(), vec![to.clone()], subject).with_html(&html);
 
-    let res = match res {
-        Ok(res) => res,
-        Err(err) => {
-            error!("resend request failed: {}", err);
-            return (StatusCode::BAD_GATEWAY, "Email provider error").into_response();
-        }
-    };
-
-    if !res.status().is_success() {
-        let status = res.status();
-        let body = res.text().await.unwrap_or_default();
-        error!("resend error: status={} body={}", status, body);
+    if let Err(err) = state.resend.emails.send(email).await {
+        error!("resend request failed: {}", err);
         return (StatusCode::BAD_GATEWAY, "Email provider error").into_response();
     }
 
@@ -165,7 +139,7 @@ fn build_contact_html(name: &str, email: &str, phone: &str, message: &str) -> St
   <head>
     <meta charset=\"utf-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-    <title>New Contact Request</title>
+    <title>Contact Request</title>
   </head>
   <body style=\"margin:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;\">
     <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f4f5;padding:24px 0;\">
@@ -173,37 +147,17 @@ fn build_contact_html(name: &str, email: &str, phone: &str, message: &str) -> St
         <td align=\"center\">
           <table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e4e4e7;\">
             <tr>
-              <td style=\"padding:20px 24px;background:#18181b;color:#ffffff;\">
-                <div style=\"font-size:18px;font-weight:700;letter-spacing:0.2px;\">New Contact Request</div>
-                <div style=\"font-size:12px;opacity:0.8;margin-top:4px;\">Kangaroo Trucking</div>
-              </td>
-            </tr>
-            <tr>
-              <td style=\"padding:24px;color:#18181b;\">
-                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"font-size:14px;\">
-                  <tr>
-                    <td style=\"padding:8px 0;color:#71717a;width:120px;\">Name</td>
-                    <td style=\"padding:8px 0;font-weight:600;\">{name}</td>
-                  </tr>
-                  <tr>
-                    <td style=\"padding:8px 0;color:#71717a;\">Email</td>
-                    <td style=\"padding:8px 0;font-weight:600;\">{email}</td>
-                  </tr>
-                  <tr>
-                    <td style=\"padding:8px 0;color:#71717a;\">Phone</td>
-                    <td style=\"padding:8px 0;font-weight:600;\">{phone}</td>
-                  </tr>
-                </table>
-
-                <div style=\"margin-top:16px;padding:16px;border:1px solid #e4e4e7;border-radius:12px;background:#fafafa;\">
-                  <div style=\"font-size:12px;letter-spacing:0.6px;color:#71717a;text-transform:uppercase;margin-bottom:8px;\">Message</div>
-                  <div style=\"white-space:pre-line;line-height:1.5;font-size:14px;color:#18181b;\">{message}</div>
-                </div>
+              <td style=\"padding:24px;color:#18181b;font-size:14px;line-height:1.6;\">
+                <div><strong>Name:</strong> {name}</div>
+                <div><strong>Email:</strong> {email}</div>
+                <div><strong>Phone:</strong> {phone}</div>
+                <div style=\"margin-top:16px;\"><strong>Message:</strong></div>
+                <div style=\"white-space:pre-line;\">{message}</div>
               </td>
             </tr>
             <tr>
               <td style=\"padding:16px 24px;background:#fafafa;color:#71717a;font-size:12px;\">
-                Reply directly to this email to reach the sender.
+                This email was sent from the Kangaroo Trucking website contact form. DO NOT REPLY TO THIS.
               </td>
             </tr>
           </table>

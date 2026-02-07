@@ -33,5 +33,6 @@ tmp/
 node_modules
 
 .env*
-app/public/css/index.css
+app/public/
+frontend/dist/
 build

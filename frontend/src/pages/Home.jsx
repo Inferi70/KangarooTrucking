@@ -1,9 +1,23 @@
 import { Link } from "react-router-dom";
+import Seo from "../components/Seo.jsx";
 import heroImg from "../assets/TruckLoaded.jpg"
 
 export default function Home() {
   return (
     <>
+      <Seo
+        title="Kangaroo Trucking LLC | Utah Flatbed Freight"
+        description="Reliable Utah flatbed trucking for local in-state deliveries. Proactive ETAs, forklift unloading available. Request a quote."
+        canonical="https://kangarootrucking.com/"
+        og={{
+          type: "website",
+          title: "Kangaroo Trucking LLC | Utah Flatbed Freight",
+          description:
+            "Reliable Utah flatbed trucking for local in-state deliveries. Proactive ETAs, forklift unloading available. Request a quote.",
+          url: "https://kangarootrucking.com/",
+        }}
+      />
+
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 pb-16">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div className="space-y-6">
@@ -130,4 +144,3 @@ For availability or special requests, please contact our dispatch team.
     </>
   );
 }
-

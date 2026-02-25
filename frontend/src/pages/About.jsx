@@ -1,6 +1,10 @@
+import Seo from "../components/Seo.jsx";
+
 export default function About() {
   return (
     <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
+      <Seo title="About Kangaroo Trucking" robots="noindex,follow" />
+
       <h1 className="text-3xl font-black tracking-tight">About</h1>
       <p className="mt-4 text-zinc-600 dark:text-zinc-200 max-w-3xl">
         This is a placeholder page, meant to be here for later when the company grows we will expand and make this page avaible.
@@ -21,4 +25,3 @@ export default function About() {
     </section>
   );
 }
-

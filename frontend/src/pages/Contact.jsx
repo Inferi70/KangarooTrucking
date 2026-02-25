@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Seo from "../components/Seo.jsx";
 
 export default function Contact() {
   const [status, setStatus] = useState("idle");
@@ -27,6 +28,19 @@ export default function Contact() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
+      <Seo
+        title="Contact Kangaroo Trucking | Request a Quote"
+        description="Contact Kangaroo Trucking for Utah flatbed freight. Send pickup and delivery details for a fast quote."
+        canonical="https://kangarootrucking.com/contact"
+        og={{
+          type: "website",
+          title: "Contact Kangaroo Trucking | Request a Quote",
+          description:
+            "Contact Kangaroo Trucking for Utah flatbed freight. Send pickup and delivery details for a fast quote.",
+          url: "https://kangarootrucking.com/contact",
+        }}
+      />
+
       <h1 className="text-3xl font-black tracking-tight">Contact</h1>
       <p className="mt-4 max-w-3xl text-zinc-600 dark:text-zinc-200">
         Send pickup and delivery details and we will get back to you as soon as possible.

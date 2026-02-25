@@ -35,10 +35,16 @@ export default function Layout({ children }) {
     <div className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-50">
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/70 backdrop-blur dark:border-zinc-700 dark:bg-zinc-900/70">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex min-h-16 items-center justify-between py-2">
 
             <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Kangaroo Trucking Logo" className="h-15 w-20" />
+              <span className="inline-flex h-14 w-20 items-center justify-center rounded-sm bg-white">
+                <img
+                  src={logo}
+                  alt="Kangaroo Trucking Logo"
+                  className="h-full w-full object-contain"
+                />
+              </span>
               <div className="leading-tight">
                 <div className="text-lg font-semibold">Kangaroo Trucking LLC</div>
                 <div className="text-xs tracking-wide text-zinc-500 dark:text-zinc-300">
@@ -55,19 +61,9 @@ export default function Layout({ children }) {
                   toggleTheme();
                   setDark(isDark());
                 }}
-                className="grid size-9 place-items-center rounded-xl border border-zinc-200 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                className="rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold tracking-wide hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
               >
-                {dark ? (
-                  // Sun icon
-                  <svg viewBox="0 0 24 24" className="size-4 fill-current" aria-hidden="true">
-                    <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM12 2v2m0 16v2m10-10h-2M4 12H2m15.07-7.07-1.41 1.41M7.34 16.66l-1.41 1.41m0-11.31 1.41 1.41m9.73 9.73 1.41 1.41" />
-                  </svg>
-                ) : (
-                  // Moon icon
-                  <svg viewBox="0 0 24 24" className="size-4 fill-current" aria-hidden="true">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
-                  </svg>
-                )}
+                {dark ? "Dark" : "Light"}
               </button>
 
               <Link
@@ -112,4 +108,3 @@ export default function Layout({ children }) {
     </div>
   );
 }
-

@@ -3,7 +3,7 @@ use resend_rs::Resend;
 use resend_rs::types::CreateEmailBaseOptions;
 use serde::Deserialize;
 use std::{net::SocketAddr, sync::Arc};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
 
@@ -51,7 +51,11 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/contact", post(send_contact))
-        .fallback_service(ServeDir::new("public").append_index_html_on_directories(true))
+        .fallback_service(
+            ServeDir::new("public")
+                .append_index_html_on_directories(true)
+                .fallback(ServeFile::new("public/index.html")),
+        )
         .with_state(state);
 
     let host = std::env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());

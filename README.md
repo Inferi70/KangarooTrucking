@@ -36,7 +36,17 @@ This builds the React app into `app/public` and starts the Axum server.
 
 ## Docker Dev
 ```
-docker compose -f DEVOPS/dev/docker-compose.yml --env-file DEVOPS/dev/.env up -d --build
+make docker
+```
+
+To stop dev containers:
+```
+make docker-down
+```
+
+To rebuild + restart dev containers:
+```
+make docker-restart
 ```
 
 ## Production (HTTPS with nginx-proxy)
@@ -55,7 +65,17 @@ The production compose in `DEVOPS/prod/docker-compose.yml` uses:
 
 3. Run production compose:
 ```
-docker compose -f DEVOPS/prod/docker-compose.yml --env-file DEVOPS/prod/.env up -d --build
+make prod-up
+```
+
+To stop prod containers:
+```
+make prod-down
+```
+
+To rebuild + restart prod containers:
+```
+make prod-restart
 ```
 
 4. DNS (Porkbun):

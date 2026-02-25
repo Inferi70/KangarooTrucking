@@ -14,6 +14,14 @@ docker:
 docker-down:
 	docker compose -f ./DEVOPS/dev/docker-compose.yml --env-file ./DEVOPS/dev/.env down
 
-deploy-prod:
-	./DEVOPS/build_all.sh prod
-	./DEVOPS/deploy.sh prod
+docker-restart:
+	docker compose -f ./DEVOPS/dev/docker-compose.yml --env-file ./DEVOPS/dev/.env up -d --build
+
+prod-up:
+	docker compose -f ./DEVOPS/prod/docker-compose.yml --env-file ./DEVOPS/prod/.env up -d --build
+
+prod-down:
+	docker compose -f ./DEVOPS/prod/docker-compose.yml --env-file ./DEVOPS/prod/.env down
+
+prod-restart:
+	docker compose -f ./DEVOPS/prod/docker-compose.yml --env-file ./DEVOPS/prod/.env up -d --build

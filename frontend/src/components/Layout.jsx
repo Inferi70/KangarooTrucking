@@ -38,13 +38,11 @@ export default function Layout({ children }) {
           <div className="flex min-h-16 items-center justify-between py-2">
 
             <Link to="/" className="flex items-center gap-3">
-              <span className="inline-flex h-14 w-20 items-center justify-center rounded-sm bg-white">
-                <img
-                  src={logo}
-                  alt="Kangaroo Trucking Logo"
-                  className="h-full w-full object-contain"
-                />
-              </span>
+              <img
+                src={logo}
+                alt="Kangaroo Trucking Logo"
+                className="h-12 w-auto object-contain drop-shadow-[0_0_2px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_0_3px_rgba(255,255,255,0.85)]"
+              />
               <div className="leading-tight">
                 <div className="text-lg font-semibold">Kangaroo Trucking LLC</div>
                 <div className="text-xs tracking-wide text-zinc-500 dark:text-zinc-300">
@@ -57,20 +55,23 @@ export default function Layout({ children }) {
               <button
                 type="button"
                 aria-label="Toggle dark mode"
+                aria-pressed={dark}
                 onClick={() => {
                   toggleTheme();
                   setDark(isDark());
                 }}
-                className="rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold tracking-wide hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                className="mode-toggle noselect"
               >
-                {dark ? "Dark" : "Light"}
+                <span className="toggle-switch" aria-hidden="true">
+                  <span className="toggle-text">{dark ? "Dark" : "Light"}</span>
+                </span>
               </button>
 
               <Link
                 className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:opacity-90 dark:bg-white dark:text-zinc-950"
                 to="/contact"
               >
-                Request a Quote
+                Contact
               </Link>
             </div>
           </div>

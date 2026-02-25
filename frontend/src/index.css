@@ -3,3 +3,111 @@
 /* Make `dark:` respond to the `.dark` class instead of system media */
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --toggle-animate: 220ms;
+  --toggle-dark-1: #010101;
+  --toggle-dark-2: #2d2f31;
+  --toggle-dark-3: #5b5e62;
+  --toggle-light-1: #e7eaed;
+  --toggle-light-2: #f7fafd;
+  --toggle-light-3: #fcfefe;
+}
+
+.mode-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mode-toggle .toggle-switch {
+  position: relative;
+  width: 84px;
+  height: 32px;
+  border-radius: 999px;
+  background: #e4e4e7;
+  transition: all var(--toggle-animate) ease-in-out;
+  overflow: hidden;
+  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.12), inset 0 -5px 15px rgba(255, 255, 255, 0.45);
+}
+
+.dark .mode-toggle .toggle-switch {
+  background: #27272a;
+  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.45), inset 0 -5px 15px rgba(255, 255, 255, 0.08);
+}
+
+.mode-toggle .toggle-text {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 10px;
+  width: calc(100% - 40px);
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #18181b;
+  transition: color var(--toggle-animate) ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dark .mode-toggle .toggle-text {
+  color: #f8fafc;
+  left: auto;
+  right: 10px;
+  text-align: right;
+}
+
+.mode-toggle .toggle-switch::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #ffffff;
+  transition: transform var(--toggle-animate) ease-in-out, background var(--toggle-animate) ease-in-out;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.mode-toggle .toggle-switch::before {
+  transform: translateX(52px);
+}
+
+.dark .mode-toggle .toggle-switch::before {
+  transform: translateX(0);
+  background: #18181b;
+}
+
+.mode-toggle:hover .toggle-switch {
+  background: #d4d4d8;
+}
+
+.dark .mode-toggle:hover .toggle-switch {
+  background: #52525b;
+}
+
+.mode-toggle:focus-visible {
+  outline: 2px solid #18181b;
+  outline-offset: 3px;
+}
+
+.dark .mode-toggle:focus-visible {
+  outline-color: var(--toggle-light-3);
+}
+
+.noselect {
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
